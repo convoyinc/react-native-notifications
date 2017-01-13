@@ -42,6 +42,13 @@ export class NotificationCategory {
 }
 
 export default class NotificationsIOS {
+
+  static RemoteBackgroundFetchResult = {
+    NewData: 'UIBackgroundFetchResultNewData',
+    NoData: 'UIBackgroundFetchResultNoData',
+    ResultFailed: 'UIBackgroundFetchResultFailed',
+  };
+
   /**
    * Attaches a listener to remote notification events while the app is running
    * in the foreground or the background.
