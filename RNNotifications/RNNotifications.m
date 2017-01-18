@@ -507,6 +507,16 @@ RCT_EXPORT_METHOD(onFinishRemoteNotification:(NSString*)notificationId fetchResu
   [self.remoteNotificationCallbacks removeObjectForKey:notificationId];
 }
 
+RCT_EXPORT_METHOD(setBadgeCount:(NSInteger *)count)
+{
+  [[UIApplication sharedApplication] setApplicationIconBadgeNumber:count];
+}
+
+RCT_EXPORT_METHOD(getBadgeCount:(RCTResponseSenderBlock)callback)
+{
+  NSNumber *count = [NSNumber numberWithInt:[[UIApplication sharedApplication] applicationIconBadgeNumber]];
+  callback(@[[NSNull null], count]);
+}
 
 RCT_EXPORT_METHOD(requestPermissionsWithCategories:(NSArray *)json)
 {
