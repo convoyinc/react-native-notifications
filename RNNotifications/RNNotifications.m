@@ -434,6 +434,16 @@ RCT_EXPORT_MODULE()
 /*
  * React Native exported methods
  */
+RCT_EXPORT_METHOD(onFinishRemoteNotification:(NSString*)notificationId fetchResult:(UIBackgroundFetchResult)result) {
+  RCTRemoteNotificationCallback completionHandler = self.remoteNotificationCallbacks[notificationId];
+  if (!completionHandler) {
+    RCTLogError(@"There is no completion handler with notification id: %@", notificationId);
+    return;
+  }
+  completionHandler(result);
+  [self.remoteNotificationCallbacks removeObjectForKey:notificationId];
+}
+
 RCT_EXPORT_METHOD(requestPermissionsWithCategories:(NSArray *)json)
 {
     NSMutableSet* categories = nil;
