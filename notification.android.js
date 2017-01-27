@@ -16,5 +16,10 @@ export default class NotificationAndroid {
   getMessage() {
     return this.data.body;
   }
+
+  finish() {
+    // no-op
+  }
+
 }
 
