@@ -533,7 +533,7 @@ RCT_EXPORT_METHOD(registerPushKit)
 RCT_EXPORT_METHOD(backgroundTimeRemaining:(RCTResponseSenderBlock)callback)
 {
     NSTimeInterval remainingTime = [UIApplication sharedApplication].backgroundTimeRemaining;
-    callback(@[ [NSNumber numberWithDouble:remainingTime] ]);
+    callback(@[[NSNull null], @(remainingTime)]);
 }
 
 RCT_EXPORT_METHOD(consumeBackgroundQueue)
