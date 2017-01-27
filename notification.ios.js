@@ -47,8 +47,6 @@ export default class IOSNotification {
     if (this._id) {
       console.info(`HEY! onFinishRemoteNotification called with _id ${this._id} and fetchResult ${fetchResult}`);
       NativeRNNotifications.onFinishRemoteNotification(this._id, fetchResult);
-    } else {
-      console.info(`HEY! onFinish called with no _id and fetchResult ${fetchResult}`, this);
     }
   }
 
