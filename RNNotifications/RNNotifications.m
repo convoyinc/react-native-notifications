@@ -179,6 +179,30 @@ RCT_EXPORT_MODULE()
                                                       userInfo:@{@"deviceToken": [self deviceTokenToString:deviceToken]}];
 }
 
+
++ (void)didReceiveRemoteNotification:(NSDictionary *)notification
+{
+  UIApplicationState state = [UIApplication sharedApplication].applicationState;
+
+  if ([RNNotificationsBridgeQueue sharedInstance].jsIsReady == YES) {
+    // JS thread is ready, push the notification to the bridge
+
+    if (state == UIApplicationStateActive) {
+      // Notification received foreground
+      [self didReceiveNotificationOnForegroundState:notification];
+    } else if (state == UIApplicationStateInactive) {
+      // Notification opened
+      [self didNotificationOpen:notification];
+    } else {
+      // Notification received background
+      [self didReceiveNotificationOnBackgroundState:notification];
+    }
+  } else {
+    // JS thread is not ready - store it in the native notifications queue
+    [[RNNotificationsBridgeQueue sharedInstance] postNotification:notification];
+  }
+}
+
 + (void)didReceiveRemoteNotification:(NSDictionary *)notification fetchCompletionHandler:(RCTRemoteNotificationCallback)completionHandler
 {
   UIApplicationState state = [UIApplication sharedApplication].applicationState;
@@ -450,14 +474,17 @@ RCT_EXPORT_MODULE()
 {
     NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionaryWithDictionary:notification.userInfo[@"notification"]];
     RCTRemoteNotificationCallback completionHandler = notification.userInfo[@"completionHandler"];
-    NSString *notificationId = [[NSUUID UUID] UUIDString];
-    remoteNotification[@"__id"] = notificationId;
 
-    if (!self.remoteNotificationCallbacks) {
-      // Lazy initialization
-      self.remoteNotificationCallbacks = [NSMutableDictionary dictionary];
+    if (completionHandler) {
+      NSString *notificationId = [[NSUUID UUID] UUIDString];
+      remoteNotification[@"__id"] = notificationId;
+
+      if (!self.remoteNotificationCallbacks) {
+        // Lazy initialization
+        self.remoteNotificationCallbacks = [NSMutableDictionary dictionary];
+      }
+      self.remoteNotificationCallbacks[notificationId] = completionHandler;
     }
-    self.remoteNotificationCallbacks[notificationId] = completionHandler;
 
   [_bridge.eventDispatcher sendDeviceEventWithName:@"notificationReceivedBackground" body:remoteNotification];
 }
