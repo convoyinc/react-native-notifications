@@ -17,9 +17,4 @@ export default class NotificationAndroid {
     return this.data.body;
   }
 
-  finish() {
-    // no-op
-  }
-
 }
-
