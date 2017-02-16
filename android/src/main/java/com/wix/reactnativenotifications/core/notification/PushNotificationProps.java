@@ -44,8 +44,7 @@ public class PushNotificationProps {
         String title = getTitle();
         String sound = getSound();
         String body = getBody();
-        return  getBadge() >= 0 ||
-                (title != null && !title.isEmpty()) ||
+        return  (title != null && !title.isEmpty()) ||
                 (sound != null && !sound.isEmpty()) ||
                 (body != null && !body.isEmpty());
     }
