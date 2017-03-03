@@ -99,7 +99,10 @@ RCT_ENUM_CONVERTER(UIBackgroundFetchResult, (@{
     UILocalNotification* notification = [UILocalNotification new];
     notification.fireDate = [RCTConvert NSDate:details[@"fireDate"]];
     notification.alertBody = [RCTConvert NSString:details[@"alertBody"]];
-    notification.alertTitle = [RCTConvert NSString:details[@"alertTitle"]];
+    // alertTitle is a property on iOS 8.2 and above:
+    if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
+      notification.alertTitle = [RCTConvert NSString:details[@"alertTitle"]];
+    }
     notification.alertAction = [RCTConvert NSString:details[@"alertAction"]];
     notification.soundName = [RCTConvert NSString:details[@"soundName"]] ?: UILocalNotificationDefaultSoundName;
     notification.userInfo = [RCTConvert NSDictionary:details[@"userInfo"]] ?: @{};
@@ -344,7 +347,10 @@ RCT_EXPORT_MODULE()
 
         // trigger new client push notification
         UILocalNotification* note = [UILocalNotification new];
-        note.alertTitle = [alert objectForKey:@"title"];
+        // alertTitle is a property on iOS 8.2 and above:
+        if ([note respondsToSelector:@selector(setAlertTitle:)]) {
+          note.alertTitle = [alert objectForKey:@"title"];
+        }
         note.alertBody = [alert objectForKey:@"body"];
         note.userInfo = notification;
         note.soundName = [managedAps objectForKey:@"sound"];
