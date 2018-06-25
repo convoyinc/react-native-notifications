@@ -52,7 +52,7 @@ public class GcmMessageHandlerService extends GcmListenerService {
                         channelBundle.putString("sound", channel.getString("sound"));
                     } catch (JSONException ignored) {}
                     try {
-                        channelBundle.putBoolean("importance", channel.getBoolean("importance"));
+                        channelBundle.putString("importance", channel.getString("importance"));
                     } catch (JSONException ignored) {}
                     try {
                         channelBundle.putBoolean("lights", channel.getBoolean("lights"));
