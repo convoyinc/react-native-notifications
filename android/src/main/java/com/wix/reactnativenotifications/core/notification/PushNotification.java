@@ -1,6 +1,7 @@
 package com.wix.reactnativenotifications.core.notification;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -115,7 +117,7 @@ public class PushNotification implements IPushNotification {
     }
 
     protected PushNotificationProps createProps(Bundle bundle) {
-        return new PushNotificationProps(bundle);
+        return new PushNotificationProps(bundle, mContext);
     }
 
     protected void setAsInitialNotification() {
@@ -150,25 +152,6 @@ public class PushNotification implements IPushNotification {
     protected Notification.Builder getNotificationBuilder(PendingIntent intent) {
         Resources res = mContext.getResources();
         String packageName = mContext.getPackageName();
-
-        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        String soundName = mNotificationProps.getSound();
-
-        if (soundName != null) {
-            if (!"default".equalsIgnoreCase(soundName)) {
-                // sound name can be full filename, or just the resource name.
-                // So the strings 'my_sound.mp3' AND 'my_sound' are accepted
-                // The reason is to make the iOS and android javascript interfaces compatible
-                int resId;
-                if (res.getIdentifier(soundName, "raw", packageName) != 0) {
-                    resId = res.getIdentifier(soundName, "raw", packageName);
-                } else {
-                    resId = res.getIdentifier(soundName.substring(0, soundName.lastIndexOf('.')), "raw", packageName);
-                }
-
-                soundUri = Uri.parse("android.resource://" + packageName + "/" + resId);
-            }
-        }
 
 
         int smallIconResId;
@@ -205,18 +188,23 @@ public class PushNotification implements IPushNotification {
             title = mContext.getPackageManager().getApplicationLabel(appInfo).toString();
         }
 
-
-        Notification.Builder notificationBuilder = new Notification.Builder(mContext)
+        Notification.Builder notificationBuilder = new Notification.Builder(mContext, mNotificationProps.getChannelId())
             .setContentTitle(title)
             .setContentText(mNotificationProps.getBody())
-            .setPriority(Notification.PRIORITY_HIGH)
+            .setPriority(mNotificationProps.getChannelImportance())
             .setContentIntent(intent)
             .setSmallIcon(smallIconResId)
-            .setSound(soundUri)
             .setAutoCancel(true);
 
-        if (mNotificationProps.getGroup() != null && Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            notificationBuilder.setGroup("offers");
+        int badge = mNotificationProps.getBadge();
+        if (badge >= 0) {
+            notificationBuilder.setNumber(badge);
+        }
+
+        createNotificationChannel(); // Must happen before notifying system of notification.
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            notificationBuilder.setGroup(mNotificationProps.getChannelId());
         }
 
         if (largeIconResId != 0 && (largeIcon != null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
@@ -226,6 +214,53 @@ public class PushNotification implements IPushNotification {
         return notificationBuilder;
     }
 
+    protected void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+
+        final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationChannel channel = new NotificationChannel(
+            mNotificationProps.getChannelId(),
+            mNotificationProps.getChannelName(),
+            mNotificationProps.getChannelImportance()
+        );
+
+        channel.setDescription(mNotificationProps.getChannelDescription());
+        channel.enableLights(mNotificationProps.getChannelLights());
+        channel.enableVibration(mNotificationProps.getChannelVibration());
+        channel.setSound(mNotificationProps.getChannelSound(), new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
+            .build());
+
+        channel.setShowBadge(mNotificationProps.getChannelBadge());
+
+        // Register the channel with the system; you can't change the importance
+        // or other notification behaviors after, only resets upon re-install.
+        notificationManager.createNotificationChannel(channel);
+    }
+
+    protected static String toTitleCase(String input) {
+        StringBuilder titleCase = new StringBuilder();
+        boolean nextTitleCase = true;
+
+        for (char c : input.toCharArray()) {
+            if (Character.isSpaceChar(c)) {
+                nextTitleCase = true;
+            } else if (nextTitleCase) {
+                c = Character.toTitleCase(c);
+                nextTitleCase = false;
+            }
+
+            titleCase.append(c);
+        }
+
+        return titleCase.toString();
+    }
 
     protected int postNotification(Notification notification, Integer notificationId) {
         int id = notificationId != null ? notificationId : createNotificationId(notification);
@@ -239,7 +274,7 @@ public class PushNotification implements IPushNotification {
 
     protected void postNotification(int id, Notification notification) {
         final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
+        
         notificationManager.notify(id, notification);
     }
 

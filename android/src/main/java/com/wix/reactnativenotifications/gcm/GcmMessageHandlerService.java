@@ -30,9 +30,42 @@ public class GcmMessageHandlerService extends GcmListenerService {
                 try {
                     bundle.putString("badge", data.getString("badge"));
                 } catch (JSONException ignored) {}
+
+                JSONObject channel = null;
+                Bundle channelBundle = new Bundle();
+
                 try {
-                    bundle.putString("group", data.getString("group"));
+                    channel = data.getJSONObject("channel");
                 } catch (JSONException ignored) {}
+
+                if (channel != null) {
+                    try {
+                        channelBundle.putString("id", channel.getString("id"));
+                    } catch (JSONException ignored) {}
+                    try {
+                    channelBundle.putString("name", channel.getString("name"));
+                    } catch (JSONException ignored) {}
+                    try {
+                        channelBundle.putString("description", channel.getString("description"));
+                    } catch (JSONException ignored) {}
+                    try {
+                        channelBundle.putString("sound", channel.getString("sound"));
+                    } catch (JSONException ignored) {}
+                    try {
+                        channelBundle.putString("importance", channel.getString("importance"));
+                    } catch (JSONException ignored) {}
+                    try {
+                        channelBundle.putBoolean("lights", channel.getBoolean("lights"));
+                    } catch (JSONException ignored) {}
+                    try {
+                        channelBundle.putBoolean("vibration", channel.getBoolean("vibration"));
+                    } catch (JSONException ignored) {}
+                    try {
+                        channelBundle.putBoolean("badge", channel.getBoolean("badge"));
+                    } catch (JSONException ignored) {}
+
+                    bundle.putBundle("channel", channelBundle);
+                }
                 try {
                     bundle.putString("sound", data.getString("sound"));
                 } catch (JSONException ignored) {}
