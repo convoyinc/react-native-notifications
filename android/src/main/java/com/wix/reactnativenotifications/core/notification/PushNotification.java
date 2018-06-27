@@ -188,8 +188,14 @@ public class PushNotification implements IPushNotification {
             title = mContext.getPackageManager().getApplicationLabel(appInfo).toString();
         }
 
-        Notification.Builder notificationBuilder = new Notification.Builder(mContext, mNotificationProps.getChannelId())
-            .setContentTitle(title)
+        Notification.Builder notificationBuilder = null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            notificationBuilder = new Notification.Builder(mContext);
+        } else {
+            notificationBuilder = new Notification.Builder(mContext, mNotificationProps.getChannelId());
+        }
+
+        notificationBuilder.setContentTitle(title)
             .setContentText(mNotificationProps.getBody())
             .setPriority(mNotificationProps.getChannelImportance())
             .setContentIntent(intent)
