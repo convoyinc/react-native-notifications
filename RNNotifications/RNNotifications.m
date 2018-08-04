@@ -246,18 +246,26 @@ RCT_EXPORT_MODULE()
 {
     UIApplicationState state = [UIApplication sharedApplication].applicationState;
 
-    NSMutableDictionary* newUserInfo = notification.userInfo.mutableCopy;
+    NSMutableDictionary* newUserInfo = [[notification userInfo] mutableCopy];
     [newUserInfo removeObjectForKey:@"__id"];
-    notification.userInfo = newUserInfo;
 
+    NSMutableDictionary *notificationDict = @{
+      @"aps": @{
+         @"alert":  notification.alertBody,
+         @"title":  notification.alertTitle,
+         @"sound":  notification.soundName,
+      },
+      @"userInfo": newUserInfo,
+    };
+    
     if (state == UIApplicationStateActive) {
-        [self didReceiveNotificationOnForegroundState:notification.userInfo];
+        [self didReceiveNotificationOnForegroundState:notificationDict];
     } else if (state == UIApplicationStateInactive) {
         NSString* notificationId = [notification.userInfo objectForKey:@"notificationId"];
         if (notificationId) {
             [self clearNotificationFromNotificationsCenter:notificationId];
         }
-        [self didNotificationOpen:notification.userInfo];
+        [self didNotificationOpen:notificationDict];
     }
 }
 

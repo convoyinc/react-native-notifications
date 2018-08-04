@@ -14,6 +14,13 @@ public interface IPushNotification {
     void onReceived() throws InvalidNotificationException;
 
     /**
+     * Handle a local event where notification has just been received.
+     * @param notificationId (optional) The specific ID to associated with the notification.
+     * @throws InvalidNotificationException
+     */
+    void onReceivedLocal(Integer notificationId) throws InvalidNotificationException;
+
+    /**
      * Handle an event where notification has already been dispatched and is not being opened by the device user.
      */
     void onOpened();
