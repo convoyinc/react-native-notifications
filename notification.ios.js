@@ -21,6 +21,7 @@ export default class IOSNotification {
       notification.managedAps) {
       // managed notification
       this._alert = notification.managedAps.alert;
+      this._title = notification.managedAps.title;
       this._sound = notification.managedAps.sound;
       this._badge = notification.aps.badge;
       this._category = notification.managedAps.category;
@@ -30,6 +31,7 @@ export default class IOSNotification {
       notification.aps.alert) {
       // regular notification
       this._alert = notification.aps.alert;
+      this._title = notification.aps.title;
       this._sound = notification.aps.sound;
       this._badge = notification.aps.badge;
       this._category = notification.aps.category;
@@ -41,17 +43,24 @@ export default class IOSNotification {
     Object.keys(notification).filter(key => key !== "aps").forEach(key => {
       this._data[key] = notification[key];
     });
+
+    Object.keys(notification.userInfo).forEach(key => {
+      this._data[key] = notification.userInfo[key];
+    });
   }
 
   finish(fetchResult) {
     if (this._id) {
-      console.info(`HEY! onFinishRemoteNotification called with _id ${this._id} and fetchResult ${fetchResult}`);
       NativeRNNotifications.onFinishRemoteNotification(this._id, fetchResult);
     }
   }
 
   getMessage(): ?string | ?Object {
     return this._alert;
+  }
+
+  getTitle(): ?string {
+    return this._title;
   }
 
   getSound(): ?string {
