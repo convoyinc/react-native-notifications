@@ -43,10 +43,6 @@ export default class IOSNotification {
     Object.keys(notification).filter(key => key !== "aps").forEach(key => {
       this._data[key] = notification[key];
     });
-
-    Object.keys(notification.userInfo).forEach(key => {
-      this._data[key] = notification.userInfo[key];
-    });
   }
 
   finish(fetchResult) {

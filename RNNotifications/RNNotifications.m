@@ -222,7 +222,7 @@ RCT_EXPORT_MODULE()
 
   if ([RNNotificationsBridgeQueue sharedInstance].jsIsReady == YES) {
     // JS thread is ready, push the notification to the bridge
-
+      
     if (state == UIApplicationStateActive) {
       // Notification received foreground
       [self didReceiveNotificationOnForegroundState:notification];
@@ -246,17 +246,18 @@ RCT_EXPORT_MODULE()
 {
     UIApplicationState state = [UIApplication sharedApplication].applicationState;
 
-    NSMutableDictionary* newUserInfo = [[notification userInfo] mutableCopy];
-    [newUserInfo removeObjectForKey:@"__id"];
+    NSMutableDictionary* data = [[notification userInfo] mutableCopy];
+    [data removeObjectForKey:@"__id"];
 
-    NSMutableDictionary *notificationDict = @{
+    NSDictionary *notificationDictNotMutable = @{
       @"aps": @{
          @"alert":  notification.alertBody,
          @"title":  notification.alertTitle,
          @"sound":  notification.soundName,
       },
-      @"userInfo": newUserInfo,
     };
+    NSMutableDictionary *notificationDict = [notificationDictNotMutable mutableCopy];
+    [notificationDict addEntriesFromDictionary:data];
     
     if (state == UIApplicationStateActive) {
         [self didReceiveNotificationOnForegroundState:notificationDict];
