@@ -20,8 +20,17 @@ export default class IOSNotification {
       !notification.aps.sound &&
       notification.managedAps) {
       // managed notification
-      this._alert = notification.managedAps.alert;
-      this._title = notification.managedAps.title;
+      if (typeof notification.managedAps.alert == "object") {
+        if ("body" in notification.managedAps.alert) {
+          this._alert = notification.managedAps.alert.body;
+        }
+        if ("title" in notification.managedAps.alert) {
+          this._title = notification.managedAps.alert.title;
+        }
+      } else if (typeof notification.managedAps.alert == "string") {
+        this._alert = notification.managedAps.alert;
+        this._title = notification.managedAps.title;
+      }
       this._sound = notification.managedAps.sound;
       this._badge = notification.aps.badge;
       this._category = notification.managedAps.category;
@@ -30,8 +39,17 @@ export default class IOSNotification {
       notification.aps &&
       notification.aps.alert) {
       // regular notification
-      this._alert = notification.aps.alert;
-      this._title = notification.aps.title;
+      if (typeof notification.aps.alert == "object") {
+        if ("body" in notification.aps.alert) {
+          this._alert = notification.aps.alert.body;
+        }
+        if ("title" in notification.aps.alert) {
+          this._title = notification.aps.alert.title;
+        }
+      } else if (typeof notification.aps.alert == "string") {
+        this._alert = notification.aps.alert;
+        this._title = notification.aps.title;
+      }
       this._sound = notification.aps.sound;
       this._badge = notification.aps.badge;
       this._category = notification.aps.category;
@@ -42,10 +60,6 @@ export default class IOSNotification {
 
     Object.keys(notification).filter(key => key !== "aps").forEach(key => {
       this._data[key] = notification[key];
-    });
-
-    Object.keys(notification.userInfo).forEach(key => {
-      this._data[key] = notification.userInfo[key];
     });
   }
 
