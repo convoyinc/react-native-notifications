@@ -10,9 +10,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.AudioAttributes;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -206,6 +205,7 @@ public class PushNotification implements IPushNotification {
             .setContentText(mNotificationProps.getBody())
             .setPriority(mNotificationProps.getPriority())
             .setContentIntent(intent)
+            .setColor(Color.parseColor("#f65335"))
             .setVibrate(mNotificationProps.getVibrationPattern())
             .setSmallIcon(smallIconResId)
             .setAutoCancel(true);
