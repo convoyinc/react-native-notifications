@@ -1,5 +1,6 @@
 package com.wix.reactnativenotifications.core.notification;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.res.Resources;
@@ -43,8 +44,51 @@ public class PushNotificationProps {
         return "convoy-notifications-channel-id-" + (channelId == null ? "default": channelId);
     }
 
+    public long getVibrationPattern() {
+      Boolean shouldVibrate = getChannelVibration();
+      if (shouldVibrate) {
+        return new long[] { 1000, 1000, 1000 };
+      }
+
+      return null;
+    }
+
+    public int getPriority() {
+        int priority = Notification.PRIORITY_MAX;
+        Bundle channel = getChannel();
+        String bundleImportance = null;
+        try {
+            bundleImportance = channel.getString("importance");
+        } catch(Exception ignored) {}
+
+        if (bundleImportance != null) {
+            switch (bundleImportance) {
+                case "default":
+                    priority = Notification.PRIORITY_DEFAULT;
+                    break;
+                case "high":
+                    priority = Notification.PRIORITY_HIGH;
+                    break;
+                case "low":
+                    priority = Notification.PRIORITY_LOW;
+                    break;
+                case "max":
+                    priority = Notification.PRIORITY_MAX;
+                    break;
+                case "min":
+                    priority = Notification.PRIORITY_MIN;
+                    break;
+                case "none":
+                    priority = Notification.PRIORITY_DEFAULT;
+                    break;
+            }
+        }
+
+        return priority;
+    }
+
     public int getChannelImportance() {
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        int importance = NotificationManager.IMPORTANCE_HIGH;
         Bundle channel = getChannel();
         String bundleImportance = null;
         try {

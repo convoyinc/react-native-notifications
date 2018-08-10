@@ -204,8 +204,9 @@ public class PushNotification implements IPushNotification {
 
         notificationBuilder.setContentTitle(title)
             .setContentText(mNotificationProps.getBody())
-            .setPriority(mNotificationProps.getChannelImportance())
+            .setPriority(mNotificationProps.getPriority())
             .setContentIntent(intent)
+            .setVibrate(mNotificationProps.getVibrationPattern())
             .setSmallIcon(smallIconResId)
             .setAutoCancel(true);
 
