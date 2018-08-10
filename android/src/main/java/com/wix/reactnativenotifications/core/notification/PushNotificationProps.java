@@ -44,7 +44,7 @@ public class PushNotificationProps {
         return "convoy-notifications-channel-id-" + (channelId == null ? "default": channelId);
     }
 
-    public long getVibrationPattern() {
+    public long[] getVibrationPattern() {
       Boolean shouldVibrate = getChannelVibration();
       if (shouldVibrate) {
         return new long[] { 1000, 1000, 1000 };
