@@ -216,7 +216,7 @@ public class PushNotification implements IPushNotification {
 
         createNotificationChannel(); // Must happen before notifying system of notification.
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.setColor(Color.parseColor("#f65335"));
         }
 
