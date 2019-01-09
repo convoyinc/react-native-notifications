@@ -18,7 +18,7 @@ public class GcmMessageHandlerService extends GcmListenerService {
         String rawData = bundle.getString("data");
         // Hack by Convoy, all of our data is nested in "data" json. We need to bring it up a level.
         // we could change this in API but it's backwards incompatible with current app to do so.
-        if (rawData.length() > 0) {
+        if (rawData != null && rawData.length() > 0) {
             try {
                 JSONObject data = new JSONObject(rawData);
                 try {
