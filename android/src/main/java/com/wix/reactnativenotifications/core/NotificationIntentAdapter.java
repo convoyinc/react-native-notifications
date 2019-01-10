@@ -13,6 +13,9 @@ public class NotificationIntentAdapter {
 
     public static PendingIntent createPendingNotificationIntent(Context appContext, Intent intent, PushNotificationProps notification) {
         intent.putExtra(PUSH_NOTIFICATION_EXTRA_NAME, notification.asBundle());
+        // a unique action, data, type, class, or category must be set, otherwise the intent matcher
+        // gets confused see https://developer.android.com/reference/android/app/PendingIntent
+        intent.setAction(String.valueOf(System.currentTimeMillis()));
         return PendingIntent.getService(appContext, PENDING_INTENT_CODE, intent, PendingIntent.FLAG_ONE_SHOT);
     }
 
