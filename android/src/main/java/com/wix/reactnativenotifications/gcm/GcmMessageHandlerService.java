@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import org.json.*;
 
+import com.facebook.common.logging.FLog;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.wix.reactnativenotifications.core.notification.IPushNotification;
 import com.wix.reactnativenotifications.core.notification.PushNotification;
@@ -12,13 +13,20 @@ import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
 public class GcmMessageHandlerService extends GcmListenerService {
 
+    private final static String LOG_TAG = "GcmMessageHandlerService";
+
     @Override
     public void onMessageReceived(String s, Bundle bundle) {
         Log.d(LOGTAG, "New message from GCM: " + bundle);
         String rawData = bundle.getString("data");
         // Hack by Convoy, all of our data is nested in "data" json. We need to bring it up a level.
         // we could change this in API but it's backwards incompatible with current app to do so.
-        if (rawData != null && rawData.length() > 0) {
+        if (rawData == null) {
+            FLog.i(LOG_TAG, "rawData doesn't contain data key: ", bundle);
+            return;
+        }
+
+        if (rawData.length() > 0) {
             try {
                 JSONObject data = new JSONObject(rawData);
                 try {
