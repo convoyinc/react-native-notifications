@@ -25,8 +25,8 @@ public class FcmInstanceIdListenerService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage message){
-        Map data = message.getData();
-        Bundle bundle = convertMapToBundle(data);
+        Map messageData = message.getData();
+        Bundle bundle = convertMapToBundle(messageData);
         Log.d(LOGTAG, "New message from GCM: " + bundle);
         String rawData = bundle.getString("data");
         // Hack by Convoy, all of our data is nested in "data" json. We need to bring it up a level.
