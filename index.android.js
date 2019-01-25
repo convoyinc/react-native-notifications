@@ -4,6 +4,7 @@ import NotificationAndroid from "./notification";
 const RNNotifications = NativeModules.WixRNNotifications;
 
 let notificationReceivedListener;
+let notificationReceivedInForegroundListener;
 let notificationOpenedListener;
 let registrationTokenUpdateListener;
 
@@ -23,10 +24,21 @@ export class NotificationsAndroid {
     notificationReceivedListener = DeviceEventEmitter.addListener("notificationReceived", (notification) => listener(new NotificationAndroid(notification)));
   }
 
+  static setNotificationReceivedInForegroundListener(listener) {
+    notificationReceivedInForegroundListener = DeviceEventEmitter.addListener("notificationReceivedInForeground", (notification) => listener(new NotificationAndroid(notification)));
+  }
+
   static clearNotificationReceivedListener() {
     if (notificationReceivedListener) {
       notificationReceivedListener.remove();
       notificationReceivedListener = null;
+    }
+  }
+
+  static clearNotificationReceivedInForegroundListener() {
+    if (notificationReceivedInForegroundListener) {
+      notificationReceivedInForegroundListener.remove();
+      notificationReceivedInForegroundListener = null;
     }
   }
 
@@ -39,6 +51,10 @@ export class NotificationsAndroid {
       registrationTokenUpdateListener.remove();
       registrationTokenUpdateListener = null;
     }
+  }
+
+  static async isRegisteredForRemoteNotifications() {
+    return await RNNotifications.isRegisteredForRemoteNotifications();
   }
 
   static refreshToken() {
@@ -64,7 +80,7 @@ export class PendingNotifications {
   static getInitialNotification() {
     return RNNotifications.getInitialNotification()
       .then((rawNotification) => {
-        return new NotificationAndroid(rawNotification);
+        return rawNotification ? new NotificationAndroid(rawNotification) : undefined;
       });
   }
 }

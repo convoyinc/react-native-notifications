@@ -32,7 +32,7 @@ function onNotificationReceived(notification) {
 }
 
 // It's highly recommended to keep listeners registration at global scope rather than at screen-scope seeing that
-// component mount and unmount lifecycle tend to be asymmetric!
+// component mount and unmount lifecycle tends to be asymmetric!
 NotificationsAndroid.setRegistrationTokenUpdateListener(onPushRegistered);
 NotificationsAndroid.setNotificationOpenedListener(onNotificationOpened);
 NotificationsAndroid.setNotificationReceivedListener(onNotificationReceived);
@@ -89,7 +89,7 @@ class MainComponent extends Component {
   componentDidMount() {
     console.log('ReactScreen', 'componentDidMount');
     PendingNotifications.getInitialNotification()
-      .then((notification) => {console.log("getInitialNotification:", notification); this.setState({initialNotification: notification.getData()});})
+      .then((notification) => {console.log("getInitialNotification:", notification); this.setState({initialNotification: (notification ? notification.getData() : undefined)});})
       .catch((err) => console.error("getInitialNotifiation failed", err));
   }
 
@@ -126,8 +126,20 @@ class MainComponent extends Component {
         <TouchableHighlight onPress={() => this.onCancelNotification()}>
           <Text style={styles.plainButtonText}>Undo last</Text>
         </TouchableHighlight>
+        <TouchableHighlight onPress={() => this.onCheckPermissions()}>
+          <Text style={styles.plainButtonText}>Check permissions</Text>
+        </TouchableHighlight>
       </View>
     )
+  }
+
+  async onCheckPermissions() {
+    const hasPermissions = await NotificationsAndroid.isRegisteredForRemoteNotifications();
+    if (hasPermissions) {
+      alert('Yay! You have permissions');
+    } else {
+      alert('Boo! You don\'t have permissions');
+    }
   }
 
   onPushRegistered() {
