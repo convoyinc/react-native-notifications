@@ -32,7 +32,7 @@ public class FcmInstanceIdListenerService extends FirebaseMessagingService {
         // Hack by Convoy, all of our data is nested in "data" json. We need to bring it up a level.
         // we could change this in API but it's backwards incompatible with current app to do so.
         if (rawData == null) {
-            FLog.i(LOG_TAG, "rawData doesn't contain data key: ", bundle);
+            FLog.i(LOG_TAG, "rawData doesn't contain data key: " + bundle);
             return;
         }
 
