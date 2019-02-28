@@ -1,5 +1,6 @@
 package com.wix.reactnativenotifications.core;
 
+import com.wix.reactnativenotifications.RNNotificationsNativeCallback;
 import android.util.Log;
 
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -14,10 +15,12 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
 
     private ReactContext mReactContext;
     private boolean mIsVisible;
+    private RNNotificationsNativeCallback mNativeCallback;
     private Set<AppVisibilityListener> mListeners = new CopyOnWriteArraySet<>();
 
-    public void init(ReactContext reactContext) {
+    public void init(ReactContext reactContext, RNNotificationsNativeCallback nativeCallback) {
         mReactContext = reactContext;
+        mNativeCallback = nativeCallback;
         reactContext.addLifecycleEventListener(new LifecycleEventListener() {
             @Override
             public void onHostResume() {
@@ -56,6 +59,11 @@ public class ReactAppLifecycleFacade implements AppLifecycleFacade {
         }
 
         return mReactContext;
+    }
+
+    @Override
+    public RNNotificationsNativeCallback getNativeCallback() {
+        return mNativeCallback;
     }
 
     @Override
