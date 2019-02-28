@@ -14,14 +14,19 @@ import java.util.List;
 public class RNNotificationsPackage implements ReactPackage {
 
     private final Application mApplication;
+    private RNNotificationsNativeCallback mNativeCallback;
 
     public RNNotificationsPackage(Application application) {
         mApplication = application;
     }
 
+    public void addNativeCallback(RNNotificationsNativeCallback rnNotificationsNativeCallback) {
+        mNativeCallback = rnNotificationsNativeCallback;
+    }
+
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.<NativeModule>asList(new RNNotificationsModule(mApplication, reactContext));
+        return Arrays.<NativeModule>asList(new RNNotificationsModule(mApplication, mNativeCallback, reactContext));
     }
 
     @Override

@@ -30,11 +30,11 @@ import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
 public class RNNotificationsModule extends ReactContextBaseJavaModule implements AppLifecycleFacade.AppVisibilityListener, Application.ActivityLifecycleCallbacks {
 
-    public RNNotificationsModule(Application application, ReactApplicationContext reactContext) {
+    public RNNotificationsModule(Application application, RNNotificationsNativeCallback nativeCallback, ReactApplicationContext reactContext) {
         super(reactContext);
 
         if (AppLifecycleFacadeHolder.get() instanceof ReactAppLifecycleFacade) {
-            ((ReactAppLifecycleFacade) AppLifecycleFacadeHolder.get()).init(reactContext);
+            ((ReactAppLifecycleFacade) AppLifecycleFacadeHolder.get()).init(reactContext, nativeCallback);
         }
         AppLifecycleFacadeHolder.get().addVisibilityListener(this);
         application.registerActivityLifecycleCallbacks(this);
