@@ -28,15 +28,10 @@ public class FcmInstanceIdListenerService extends FirebaseMessagingService {
         Map messageData = message.getData();
         Bundle bundle = convertMapToBundle(messageData);
         Log.d(LOGTAG, "New message from GCM: " + bundle);
-        String rawData = bundle.getString("data");
         // Hack by Convoy, all of our data is nested in "data" json. We need to bring it up a level.
         // we could change this in API but it's backwards incompatible with current app to do so.
-        if (rawData == null) {
-            FLog.i(LOG_TAG, "rawData doesn't contain data key: " + bundle);
-            return;
-        }
-
-        if (rawData.length() > 0) {
+        String rawData = bundle.getString("data");
+        if (rawData != null && rawData.length() > 0) {
             try {
                 JSONObject data = new JSONObject(rawData);
                 try {
@@ -90,6 +85,8 @@ public class FcmInstanceIdListenerService extends FirebaseMessagingService {
             } catch (JSONException ignored) {
                 Log.d(LOGTAG, "Failed to parse raw data");
             }
+        } else {
+            FLog.i(LOG_TAG, "rawData doesn't contain data key or data is empty: " + bundle);
         }
 
         try {
