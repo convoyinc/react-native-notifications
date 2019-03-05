@@ -57,17 +57,6 @@ RCT_ENUM_CONVERTER(UIUserNotificationActionBehavior, (@{
                                                         }), UIUserNotificationActionBehaviorDefault, integerValue)
 @end
 
-@implementation RCTConvert (UIBackgroundFetchResult)
-
-RCT_ENUM_CONVERTER(UIBackgroundFetchResult, (@{
-                                               @"UIBackgroundFetchResultNewData": @(UIBackgroundFetchResultNewData),
-                                               @"UIBackgroundFetchResultNoData": @(UIBackgroundFetchResultNoData),
-                                               @"UIBackgroundFetchResultFailed": @(UIBackgroundFetchResultFailed),
-                                               }), UIBackgroundFetchResultNoData, integerValue)
-
-@end
-
-
 @implementation RCTConvert (UIMutableUserNotificationAction)
 + (UIMutableUserNotificationAction *)UIMutableUserNotificationAction:(id)json
 {
@@ -102,30 +91,6 @@ RCT_ENUM_CONVERTER(UIBackgroundFetchResult, (@{
     [category setActions:actions forContext:[RCTConvert UIUserNotificationActionContext:details[@"context"]]];
 
     return category;
-}
-@end
-
-@implementation RCTConvert (UILocalNotification)
-+ (UILocalNotification *)UILocalNotification:(id)json
-{
-    NSDictionary<NSString *, id> *details = [self NSDictionary:json];
-
-    UILocalNotification* notification = [UILocalNotification new];
-    notification.fireDate = [RCTConvert NSDate:details[@"fireDate"]];
-    notification.alertBody = [RCTConvert NSString:details[@"alertBody"]];
-    // alertTitle is a property on iOS 8.2 and above:
-    if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
-      notification.alertTitle = [RCTConvert NSString:details[@"alertTitle"]];
-    }
-    notification.alertAction = [RCTConvert NSString:details[@"alertAction"]];
-    notification.soundName = [RCTConvert NSString:details[@"soundName"]] ?: UILocalNotificationDefaultSoundName;
-    if ([RCTConvert BOOL:details[@"silent"]]) {
-        notification.soundName = nil;
-    }
-    notification.userInfo = [RCTConvert NSDictionary:details[@"userInfo"]] ?: @{};
-    notification.category = [RCTConvert NSString:details[@"category"]];
-
-    return notification;
 }
 @end
 
