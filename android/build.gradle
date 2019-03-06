@@ -1,8 +1,22 @@
+buildscript {
+    repositories {
+    maven {
+        url "https://maven.google.com"
+    }
+    jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
 apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 16
@@ -20,13 +34,12 @@ android {
 
 dependencies {
     // Google's GCM.
-//    compile 'com.google.android.gms:play-services-gcm:15.0.1'
-    compile "com.google.firebase:firebase-messaging:17.3.4"
-    compile 'com.facebook.react:react-native:+'
+    api "com.google.firebase:firebase-messaging:17.3.4"
+    implementation 'com.facebook.react:react-native:+'
 
-    compile 'me.leolin:ShortcutBadger:1.1.8@aar'
+    implementation 'me.leolin:ShortcutBadger:1.1.8@aar'
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.+'
-    testCompile 'org.robolectric:robolectric:3.1.4'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.+'
+    testImplementation 'org.robolectric:robolectric:3.1.4'
 }
