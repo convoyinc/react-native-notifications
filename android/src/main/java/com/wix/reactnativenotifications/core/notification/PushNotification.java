@@ -1,5 +1,7 @@
 package com.wix.reactnativenotifications.core.notification;
 
+import java.util.Calendar;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -216,6 +218,11 @@ public class PushNotification implements IPushNotification {
         int badge = mNotificationProps.getBadge();
         if (badge >= 0) {
             notificationBuilder.setNumber(badge);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            notificationBuilder.setWhen(Calendar.getInstance().getTimeInMillis())
+            .setShowWhen(true);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
