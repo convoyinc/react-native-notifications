@@ -211,6 +211,7 @@ public class PushNotification implements IPushNotification {
             .setContentIntent(intent)
             .setVibrate(mNotificationProps.getVibrationPattern())
             .setSmallIcon(smallIconResId)
+            .setShowWhen(true)
             .setAutoCancel(true);
 
         int badge = mNotificationProps.getBadge();
