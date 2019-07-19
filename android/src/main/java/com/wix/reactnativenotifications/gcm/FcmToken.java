@@ -1,6 +1,8 @@
 package com.wix.reactnativenotifications.gcm;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
@@ -19,6 +21,22 @@ public class FcmToken implements IFcmToken {
     final protected Context mAppContext;
 
     protected static String sToken;
+
+    private final Runnable sendTokenToJsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            synchronized (mAppContext) {
+                final ReactInstanceManager instanceManager = ((ReactApplication) mAppContext).getReactNativeHost().getReactInstanceManager();
+                final ReactContext reactContext = instanceManager.getCurrentReactContext();
+                // Note: Cannot assume react-context exists cause this is an async dispatched service.
+                if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
+                    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(TOKEN_RECEIVED_EVENT_NAME, sToken);
+                }
+            }
+        }
+    };
+
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
     protected FcmToken(Context appContext) {
         if (!(appContext instanceof ReactApplication)) {
@@ -80,13 +98,13 @@ public class FcmToken implements IFcmToken {
         });
     }
 
+    /**
+     * This method can be called from a background thread.  The call to getReactInstanceManager()
+     * can end up calling createReactInstanceManager() which must be called from the UI thread.
+     *
+     * Because of this restriction we make a point to always post this runnable to a main thread.
+     */
     protected void sendTokenToJS() {
-        final ReactInstanceManager instanceManager = ((ReactApplication) mAppContext).getReactNativeHost().getReactInstanceManager();
-        final ReactContext reactContext = instanceManager.getCurrentReactContext();
-
-        // Note: Cannot assume react-context exists cause this is an async dispatched service.
-        if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(TOKEN_RECEIVED_EVENT_NAME, sToken);
-        }
+        mainThreadHandler.post(sendTokenToJsRunnable);
     }
 }
