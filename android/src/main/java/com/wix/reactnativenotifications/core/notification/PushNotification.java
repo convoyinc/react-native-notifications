@@ -207,6 +207,8 @@ public class PushNotification implements IPushNotification {
 
         notificationBuilder.setContentTitle(title)
             .setContentText(mNotificationProps.getBody())
+            .setStyle(new Notification.BigTextStyle()
+                .bigText(mNotificationProps.getBody()))
             .setPriority(mNotificationProps.getPriority())
             .setContentIntent(intent)
             .setVibrate(mNotificationProps.getVibrationPattern())
