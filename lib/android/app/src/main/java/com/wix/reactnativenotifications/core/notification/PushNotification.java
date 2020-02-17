@@ -63,7 +63,9 @@ public class PushNotification implements IPushNotification {
 
     @Override
     public void onReceived() throws InvalidNotificationException {
-        postNotification(null);
+        if (!mAppLifecycleFacade.isAppVisible() && mNotificationProps.isVisible()) {
+            postNotification(null);
+        }
         notifyReceivedToJS();
     }
 
@@ -75,7 +77,12 @@ public class PushNotification implements IPushNotification {
 
     @Override
     public int onPostRequest(Integer notificationId) {
-        return postNotification(notificationId);
+        int id = notificationId != null ? notificationId.intValue() : -1;
+        if (!mAppLifecycleFacade.isAppVisible() && mNotificationProps.isVisible()) {
+            id = postNotification(notificationId);
+        }
+        notifyReceivedToJS();
+        return id;
     }
 
     @Override
@@ -109,7 +116,7 @@ public class PushNotification implements IPushNotification {
     }
 
     protected PushNotificationProps createProps(Bundle bundle) {
-        return new PushNotificationProps(bundle);
+        return PushNotificationProps.createFromBundle(bundle);
     }
 
     protected void setAsInitialNotification() {
