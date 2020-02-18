@@ -97,6 +97,17 @@ public class ConvoyNotificationBuilder {
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             notificationBuilder.setGroup(getChannelId());
+            Bundle actions = getActions();
+            if (actions != null) {
+                String defaultAction = actions.getString("default");
+                if (defaultAction != null) {
+                    notificationBuilder.addAction(buildNotificationAction(defaultAction, mIntent));
+                }
+                String additionalAction = actions.getString("additional");
+                if (additionalAction != null) {
+                    notificationBuilder.addAction(buildNotificationAction(additionalAction, mIntent));
+                }
+            }
         }
 
         if (largeIconResId != 0 && (largeIcon != null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
@@ -104,6 +115,14 @@ public class ConvoyNotificationBuilder {
         }
 
         return notificationBuilder.build();
+    }
+
+    private Notification.Action buildNotificationAction(String label, PendingIntent intent) {
+        return new Notification.Action.Builder(
+                android.R.drawable.ic_menu_call,
+                label,
+                intent
+        ).build();
     }
 
     private void createNotificationChannel() {
@@ -141,6 +160,13 @@ public class ConvoyNotificationBuilder {
             return mBundle.getInt("badge");
         }
         return 1;
+    }
+
+    private Bundle getActions() {
+        if (mBundle.containsKey("actions")) {
+            return mBundle.getBundle("actions");
+        }
+        return null;
     }
 
     private Bundle getChannel() {
