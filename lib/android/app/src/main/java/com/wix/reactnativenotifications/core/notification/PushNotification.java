@@ -145,7 +145,7 @@ public class PushNotification implements IPushNotification {
     }
 
     protected Notification buildNotification(PendingIntent intent) {
-        return getNotificationBuilder(intent).build();
+        return new ConvoyNotificationBuilder(mContext, mNotificationProps, intent).buildNotification();
     }
 
     protected Notification.Builder getNotificationBuilder(PendingIntent intent) {
