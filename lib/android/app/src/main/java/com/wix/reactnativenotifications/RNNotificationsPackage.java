@@ -16,6 +16,7 @@ import com.wix.reactnativenotifications.core.AppLifecycleFacade;
 import com.wix.reactnativenotifications.core.AppLifecycleFacadeHolder;
 import com.wix.reactnativenotifications.core.InitialNotificationHolder;
 import com.wix.reactnativenotifications.core.NotificationIntentAdapter;
+import com.wix.reactnativenotifications.core.notification.ConvoyNotificationBuilder;
 import com.wix.reactnativenotifications.core.notification.IPushNotification;
 import com.wix.reactnativenotifications.core.notification.PushNotification;
 import com.wix.reactnativenotifications.core.notification.PushNotificationProps;
@@ -80,7 +81,7 @@ public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.
     public void onActivityStarted(Activity activity) {
         Bundle bundle = activity.getIntent().getExtras();
         if (bundle != null) {
-            PushNotificationProps props = PushNotificationProps.createFromBundle(bundle);
+            PushNotificationProps props = ConvoyNotificationBuilder.createFromBundle(bundle);
             if (props.isFirebaseBackgroundPayload()) {
                 InitialNotificationHolder.getInstance().set(props);
             }
