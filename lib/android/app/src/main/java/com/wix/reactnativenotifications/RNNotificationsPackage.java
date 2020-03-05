@@ -14,9 +14,11 @@ import com.facebook.react.uimanager.ViewManager;
 import com.google.firebase.FirebaseApp;
 import com.wix.reactnativenotifications.core.AppLifecycleFacade;
 import com.wix.reactnativenotifications.core.AppLifecycleFacadeHolder;
+import com.wix.reactnativenotifications.core.InitialNotificationHolder;
 import com.wix.reactnativenotifications.core.NotificationIntentAdapter;
 import com.wix.reactnativenotifications.core.notification.IPushNotification;
 import com.wix.reactnativenotifications.core.notification.PushNotification;
+import com.wix.reactnativenotifications.core.notification.PushNotificationProps;
 import com.wix.reactnativenotifications.core.notificationdrawer.IPushNotificationsDrawer;
 import com.wix.reactnativenotifications.core.notificationdrawer.PushNotificationsDrawer;
 
@@ -76,6 +78,13 @@ public class RNNotificationsPackage implements ReactPackage, AppLifecycleFacade.
 
     @Override
     public void onActivityStarted(Activity activity) {
+        Bundle bundle = activity.getIntent().getExtras();
+        if (bundle != null) {
+            PushNotificationProps props = PushNotificationProps.createFromBundle(bundle);
+            if (props.isFirebaseBackgroundPayload()) {
+                InitialNotificationHolder.getInstance().set(props);
+            }
+        }
     }
 
     @Override

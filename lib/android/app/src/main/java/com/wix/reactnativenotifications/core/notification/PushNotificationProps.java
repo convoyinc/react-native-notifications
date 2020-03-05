@@ -34,6 +34,10 @@ public class PushNotificationProps {
         return (Bundle) mBundle.clone();
     }
 
+    public boolean isFirebaseBackgroundPayload() {
+        return mBundle.containsKey("google.message_id");
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(1024);
