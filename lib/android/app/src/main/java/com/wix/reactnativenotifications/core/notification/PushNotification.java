@@ -116,7 +116,7 @@ public class PushNotification implements IPushNotification {
     }
 
     protected PushNotificationProps createProps(Bundle bundle) {
-        return PushNotificationProps.createFromBundle(bundle);
+        return ConvoyNotificationBuilder.createFromBundle(bundle);
     }
 
     protected void setAsInitialNotification() {
@@ -201,7 +201,12 @@ public class PushNotification implements IPushNotification {
     }
 
     private void notifyReceivedToJS() {
-        mJsIOHelper.sendEventToJS(NOTIFICATION_RECEIVED_EVENT_NAME, mNotificationProps.asBundle(), mAppLifecycleFacade.getRunningReactContext());
+        Bundle bundle = mNotificationProps.asBundle();
+        Bundle channelSettings = ConvoyNotificationBuilder.getNotificationChannelSettings(mContext, bundle);
+        if (channelSettings != null) {
+            bundle.putBundle("channelSettings", channelSettings);
+        }
+        mJsIOHelper.sendEventToJS(NOTIFICATION_RECEIVED_EVENT_NAME, bundle, mAppLifecycleFacade.getRunningReactContext());
     }
 
     private void notifyOpenedToJS() {

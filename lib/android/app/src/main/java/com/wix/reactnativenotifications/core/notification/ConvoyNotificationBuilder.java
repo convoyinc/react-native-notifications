@@ -15,6 +15,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
+
+import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
 public class ConvoyNotificationBuilder {
 
@@ -69,20 +77,21 @@ public class ConvoyNotificationBuilder {
             title = mContext.getPackageManager().getApplicationLabel(appInfo).toString();
         }
 
+        Bundle channelBundle = getChannel(mBundle);
         Notification.Builder notificationBuilder;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             notificationBuilder = new Notification.Builder(mContext);
         } else {
             createNotificationChannel(); // Must happen before notifying system of notification.
-            notificationBuilder = new Notification.Builder(mContext, getChannelId());
+            notificationBuilder = new Notification.Builder(mContext, getChannelId(channelBundle));
         }
 
         notificationBuilder.setContentTitle(title)
                 .setContentText(mNotificationProps.getBody())
                 .setStyle(new Notification.BigTextStyle().bigText(mNotificationProps.getBody()))
-                .setPriority(getPriority())
+                .setPriority(getPriority(channelBundle))
                 .setContentIntent(mIntent)
-                .setVibrate(getVibrationPattern())
+                .setVibrate(getVibrationPattern(channelBundle))
                 .setSmallIcon(smallIconResId)
                 .setAutoCancel(true);
 
@@ -96,7 +105,7 @@ public class ConvoyNotificationBuilder {
         }
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            notificationBuilder.setGroup(getChannelId());
+            notificationBuilder.setGroup(getChannelId(channelBundle));
             Bundle actions = getActions();
             if (actions != null) {
                 String defaultAction = actions.getString("default");
@@ -134,21 +143,22 @@ public class ConvoyNotificationBuilder {
 
         final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
+        Bundle channelBundle = getChannel(mBundle);
         NotificationChannel channel = new NotificationChannel(
-                getChannelId(),
-                getChannelName(),
-                getChannelImportance()
+                getChannelId(channelBundle),
+                getChannelName(channelBundle),
+                getChannelImportance(channelBundle)
         );
 
-        channel.setDescription(getChannelDescription());
-        channel.enableLights(getChannelLights());
-        channel.enableVibration(getChannelVibration());
-        channel.setSound(getChannelSound(), new AudioAttributes.Builder()
+        channel.setDescription(getChannelDescription(channelBundle));
+        channel.enableLights(getChannelLights(channelBundle));
+        channel.enableVibration(getChannelVibration(channelBundle));
+        channel.setSound(getChannelSound(mContext, channelBundle), new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
                 .build());
 
-        channel.setShowBadge(getChannelBadge());
+        channel.setShowBadge(getChannelBadge(channelBundle));
 
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after, only resets upon re-install.
@@ -169,17 +179,16 @@ public class ConvoyNotificationBuilder {
         return null;
     }
 
-    private Bundle getChannel() {
-        if (mBundle.containsKey("channel")) {
-            return mBundle.getBundle("channel");
+    private static Bundle getChannel(Bundle bundle) {
+        if (bundle.containsKey("channel")) {
+            return bundle.getBundle("channel");
         }
         return null;
     }
 
-    private String getChannelId() {
-        Bundle channel = getChannel();
+    private static String getChannelId(Bundle channel) {
         String channelId = null;
-        if(channel != null) {
+        if (channel != null) {
             try {
                 channelId = channel.getString("id");
             } catch (Exception ignored){}
@@ -187,8 +196,7 @@ public class ConvoyNotificationBuilder {
         return "convoy-notifications-channel-id-" + (channelId == null ? "default": channelId);
     }
 
-    private String getChannelDescription() {
-        Bundle channel = getChannel();
+    private static String getChannelDescription(Bundle channel) {
         String channelDescription = null;
         try {
             channelDescription = channel.getString("description");
@@ -196,8 +204,7 @@ public class ConvoyNotificationBuilder {
         return channelDescription == null ? "Convoy Notifications" : channelDescription;
     }
 
-    private String getChannelName() {
-        Bundle channel = getChannel();
+    private static String getChannelName(Bundle channel) {
         String channelName = null;
         try {
             channelName = channel.getString("name");
@@ -205,8 +212,7 @@ public class ConvoyNotificationBuilder {
         return channelName == null ? "Notifications" : channelName;
     }
 
-    private Boolean getChannelVibration() {
-        Bundle channel = getChannel();
+    private static Boolean getChannelVibration(Bundle channel) {
         Boolean channelVibration = null;
         try {
             channelVibration = channel.getBoolean("vibration");
@@ -214,8 +220,7 @@ public class ConvoyNotificationBuilder {
         return channelVibration == null ? true : channelVibration;
     }
 
-    private Boolean getChannelBadge() {
-        Bundle channel = getChannel();
+    private static Boolean getChannelBadge(Bundle channel) {
         Boolean channelBadge = null;
         try {
             channelBadge = channel.getBoolean("badge");
@@ -223,9 +228,8 @@ public class ConvoyNotificationBuilder {
         return channelBadge == null ? true : channelBadge;
     }
 
-    private int getPriority() {
+    private static int getPriority(Bundle channel) {
         int priority = Notification.PRIORITY_MAX;
-        Bundle channel = getChannel();
         String bundleImportance = null;
         try {
             bundleImportance = channel.getString("importance");
@@ -233,9 +237,6 @@ public class ConvoyNotificationBuilder {
 
         if (bundleImportance != null) {
             switch (bundleImportance) {
-                case "default":
-                    priority = Notification.PRIORITY_DEFAULT;
-                    break;
                 case "high":
                     priority = Notification.PRIORITY_HIGH;
                     break;
@@ -249,6 +250,8 @@ public class ConvoyNotificationBuilder {
                     priority = Notification.PRIORITY_MIN;
                     break;
                 case "none":
+                case "default":
+                default:
                     priority = Notification.PRIORITY_DEFAULT;
                     break;
             }
@@ -257,9 +260,8 @@ public class ConvoyNotificationBuilder {
         return priority;
     }
 
-    private int getChannelImportance() {
+    private static int getChannelImportance(Bundle channel) {
         int importance = NotificationManager.IMPORTANCE_HIGH;
-        Bundle channel = getChannel();
         String bundleImportance = null;
         try {
             bundleImportance = channel.getString("importance");
@@ -292,10 +294,9 @@ public class ConvoyNotificationBuilder {
     }
 
 
-    private Uri getChannelSound() {
-        Resources res = mContext.getResources();
-        String packageName = mContext.getPackageName();
-        Bundle channel = getChannel();
+    private static Uri getChannelSound(Context context, Bundle channel) {
+        Resources res = context.getResources();
+        String packageName = context.getPackageName();
         String soundName = null;
         try {
             soundName = channel.getString("sound");
@@ -321,8 +322,7 @@ public class ConvoyNotificationBuilder {
         return soundUri;
     }
 
-    private Boolean getChannelLights() {
-        Bundle channel = getChannel();
+    private static Boolean getChannelLights(Bundle channel) {
         Boolean channelLights = null;
         try {
             channelLights = channel.getBoolean("lights");
@@ -330,12 +330,74 @@ public class ConvoyNotificationBuilder {
         return channelLights == null ? true : channelLights;
     }
 
-    private long[] getVibrationPattern() {
-        Boolean shouldVibrate = getChannelVibration();
+    private static long[] getVibrationPattern(Bundle channel) {
+        Boolean shouldVibrate = getChannelVibration(channel);
         if (shouldVibrate) {
             return new long[] { 1000, 1000, 1000 };
         }
 
         return null;
+    }
+
+    public static Bundle getNotificationChannelSettings(Context context, Bundle bundle) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return null;
+        }
+
+        Bundle channelBundle = getChannel(bundle);
+        if (channelBundle == null) {
+            return null;
+        }
+
+        String channelId = getChannelId(channelBundle);
+        Bundle channelSettings = new Bundle();
+        channelSettings.putString("channelId", channelId);
+        channelSettings.putInt("assignedImportance", getChannelImportance(channelBundle));
+
+        final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
+        if (channel != null) {
+            channelSettings.putInt("actualImportance", channel.getImportance());
+        }
+        return channelSettings;
+    }
+
+    public static PushNotificationProps createFromBundle(Bundle bundle) {
+        String dataString = bundle.getString("data");
+        if (dataString != null && !dataString.isEmpty()) {
+            try {
+                JSONObject jsonObject = new JSONObject(dataString);
+                addJsonObjectToBundle(jsonObject, bundle);
+            } catch (JSONException e) {
+                Log.e(LOGTAG, "Error parsing data bundle", e);
+            }
+        }
+        return new PushNotificationProps(bundle);
+    }
+
+    private static void addJsonObjectToBundle(JSONObject jsonObject, Bundle bundle) throws JSONException {
+        Iterator<String> keys = jsonObject.keys();
+        while(keys.hasNext()) {
+            String key = keys.next();
+            Object value = jsonObject.get(key);
+            if (value == null) {
+                continue;
+            }
+            if (value instanceof String) {
+                bundle.putString(key, (String)value);
+            } else if (value instanceof Boolean) {
+                bundle.putBoolean(key, (Boolean)value);
+            } else if (value instanceof Integer) {
+                bundle.putInt(key, (Integer)value);
+            } else if (value instanceof Double) {
+                bundle.putDouble(key, (Double)value);
+            } else if (value instanceof Float) {
+                bundle.putFloat(key, (Float)value);
+            } else if (value instanceof JSONObject) {
+                Bundle subBundle = new Bundle();
+                bundle.putBundle(key, subBundle);
+                addJsonObjectToBundle((JSONObject)value, subBundle);
+            }
+        }
     }
 }
