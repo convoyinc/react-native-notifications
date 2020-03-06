@@ -349,11 +349,13 @@ public class ConvoyNotificationBuilder {
             return null;
         }
 
+        String channelId = getChannelId(channelBundle);
         Bundle channelSettings = new Bundle();
+        channelSettings.putString("channelId", channelId);
         channelSettings.putInt("assignedImportance", getChannelImportance(channelBundle));
 
         final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel channel = notificationManager.getNotificationChannel(getChannelId(channelBundle));
+        NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
         if (channel != null) {
             channelSettings.putInt("actualImportance", channel.getImportance());
         }
