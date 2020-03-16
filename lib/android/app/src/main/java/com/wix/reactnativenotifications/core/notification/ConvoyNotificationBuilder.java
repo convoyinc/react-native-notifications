@@ -93,6 +93,7 @@ public class ConvoyNotificationBuilder {
                 .setContentIntent(mIntent)
                 .setVibrate(getVibrationPattern(channelBundle))
                 .setSmallIcon(smallIconResId)
+                .setShowWhen(true)
                 .setAutoCancel(true);
 
         int badge = getBadge();
