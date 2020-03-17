@@ -2,10 +2,13 @@ package com.wix.reactnativenotifications.fcm;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -19,7 +22,23 @@ import static com.wix.reactnativenotifications.Defs.TOKEN_RECEIVED_EVENT_NAME;
 public class FcmToken implements IFcmToken {
 
     final protected Context mAppContext;
-    final protected JsIOHelper mJsIOHelper;
+    final private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+
+    private final Runnable sendTokenToJsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            synchronized (mAppContext) {
+                final ReactInstanceManager instanceManager = ((ReactApplication) mAppContext).getReactNativeHost().getReactInstanceManager();
+                final ReactContext reactContext = instanceManager.getCurrentReactContext();
+                // Note: Cannot assume react-context exists cause this is an async dispatched service.
+                if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
+                    Bundle tokenMap = new Bundle();
+                    tokenMap.putString("deviceToken", sToken);
+                    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(TOKEN_RECEIVED_EVENT_NAME, Arguments.fromBundle(tokenMap));
+                }
+            }
+        }
+    };
 
     protected static String sToken;
 
@@ -27,7 +46,6 @@ public class FcmToken implements IFcmToken {
         if (!(appContext instanceof ReactApplication)) {
             throw new IllegalStateException("Application instance isn't a react-application");
         }
-        mJsIOHelper = new JsIOHelper();
         mAppContext = appContext;
     }
 
@@ -84,15 +102,13 @@ public class FcmToken implements IFcmToken {
         });
     }
 
+    /**
+     * This method can be called from a background thread.  The call to getReactInstanceManager()
+     * can end up calling createReactInstanceManager() which must be called from the UI thread.
+     *
+     * Because of this restriction we make a point to always post this runnable to a main thread.
+     */
     protected void sendTokenToJS() {
-        final ReactInstanceManager instanceManager = ((ReactApplication) mAppContext).getReactNativeHost().getReactInstanceManager();
-        final ReactContext reactContext = instanceManager.getCurrentReactContext();
-
-        // Note: Cannot assume react-context exists cause this is an async dispatched service.
-        if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
-            Bundle tokenMap = new Bundle();
-            tokenMap.putString("deviceToken", sToken);
-            mJsIOHelper.sendEventToJS(TOKEN_RECEIVED_EVENT_NAME, tokenMap, reactContext);
-        }
+        mainThreadHandler.post(sendTokenToJsRunnable);
     }
 }
