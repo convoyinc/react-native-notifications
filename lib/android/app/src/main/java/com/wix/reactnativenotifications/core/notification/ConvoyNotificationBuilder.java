@@ -26,6 +26,16 @@ import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
 public class ConvoyNotificationBuilder {
 
+    static class NotificationWithId {
+        int id;
+        Notification notification;
+
+        NotificationWithId(int id, Notification notification) {
+            this.id = id;
+            this.notification = notification;
+        }
+    }
+
     final private Context mContext;
     final protected PushNotificationProps mNotificationProps;
     final private Bundle mBundle;
@@ -38,7 +48,7 @@ public class ConvoyNotificationBuilder {
         mIntent = intent;
     }
 
-    public Notification buildNotification() {
+    public NotificationWithId buildNotification() {
         Resources res = mContext.getResources();
         String packageName = mContext.getPackageName();
 
@@ -124,7 +134,7 @@ public class ConvoyNotificationBuilder {
             notificationBuilder.setLargeIcon(largeIconBitmap);
         }
 
-        return notificationBuilder.build();
+        return new NotificationWithId(123456, notificationBuilder.build());
     }
 
     private Notification.Action buildNotificationAction(String label, PendingIntent intent) {
