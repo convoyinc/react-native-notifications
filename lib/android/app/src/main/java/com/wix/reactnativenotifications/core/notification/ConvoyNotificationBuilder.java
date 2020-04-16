@@ -134,7 +134,30 @@ public class ConvoyNotificationBuilder {
             notificationBuilder.setLargeIcon(largeIconBitmap);
         }
 
-        return new NotificationWithId(123456, notificationBuilder.build());
+        return new NotificationWithId(buildNotificationId(), notificationBuilder.build());
+    }
+
+    private int buildNotificationId() {
+        Bundle collapse = mBundle.containsKey("collapse") ? mBundle.getBundle("collapse") : null;
+        String pushType = mBundle.containsKey("pushType") ? mBundle.getString("pushType") : "";
+        String pushId = null;
+        if (collapse != null) {
+            String collapseType = collapse.getString("cs");
+            switch (collapseType) {
+                case "type":
+                    pushId = pushType;
+                    break;
+                case "id":
+                    pushId = collapse.getString("id");
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (pushId == null) {
+            pushId = pushType + ':' + System.currentTimeMillis();
+        }
+        return pushId.hashCode();
     }
 
     private Notification.Action buildNotificationAction(String label, PendingIntent intent) {
