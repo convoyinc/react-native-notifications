@@ -139,22 +139,9 @@ public class ConvoyNotificationBuilder {
 
     private int buildNotificationId() {
         Bundle collapse = mBundle.containsKey("collapse") ? mBundle.getBundle("collapse") : null;
-        String pushType = mBundle.containsKey("pushType") ? mBundle.getString("pushType") : "";
-        String pushId = null;
-        if (collapse != null) {
-            String collapseType = collapse.getString("cs");
-            switch (collapseType) {
-                case "type":
-                    pushId = pushType;
-                    break;
-                case "id":
-                    pushId = collapse.getString("id");
-                    break;
-                default:
-                    break;
-            }
-        }
+        String pushId = collapse != null && collapse.containsKey("key") ? collapse.getString("key") : null;
         if (pushId == null) {
+            String pushType = mBundle.containsKey("pushType") ? mBundle.getString("pushType") : "";
             pushId = pushType + ':' + System.currentTimeMillis();
         }
         return pushId.hashCode();
