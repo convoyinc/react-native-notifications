@@ -48,7 +48,7 @@ public class ConvoyNotificationBuilder {
         mIntent = intent;
     }
 
-    public NotificationWithId buildNotification() {
+    public NotificationWithId buildNotificationWithId() {
         Resources res = mContext.getResources();
         String packageName = mContext.getPackageName();
 
@@ -137,7 +137,7 @@ public class ConvoyNotificationBuilder {
         return new NotificationWithId(buildNotificationId(), notificationBuilder.build());
     }
 
-    private int buildNotificationId() {
+    public int buildNotificationId() {
         Bundle collapse = mBundle.containsKey("collapse") ? mBundle.getBundle("collapse") : null;
         String pushId = collapse != null && collapse.containsKey("key") ? collapse.getString("key") : null;
         if (pushId == null) {
