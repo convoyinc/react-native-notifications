@@ -64,7 +64,9 @@ public class PushNotification implements IPushNotification {
     @Override
     public void onReceived() throws InvalidNotificationException {
         if (!mAppLifecycleFacade.isAppVisible() && mNotificationProps.isVisible()) {
-            postNotification(null);
+            final PendingIntent pendingIntent = getCTAPendingIntent();
+            final ConvoyNotificationBuilder.NotificationWithId notificationWithId = buildNotificationWithId(pendingIntent);
+            postNotification(notificationWithId.id, notificationWithId.notification);
         }
         notifyReceivedToJS();
     }
@@ -77,12 +79,14 @@ public class PushNotification implements IPushNotification {
 
     @Override
     public int onPostRequest(Integer notificationId) {
-        int id = notificationId != null ? notificationId.intValue() : -1;
         if (!mAppLifecycleFacade.isAppVisible() && mNotificationProps.isVisible()) {
-            id = postNotification(notificationId);
+            final PendingIntent pendingIntent = getCTAPendingIntent();
+            final ConvoyNotificationBuilder.NotificationWithId notificationWithId = buildNotificationWithId(pendingIntent);
+            notificationId = notificationId != null ? notificationId : notificationWithId.id;
+            postNotification(notificationId, notificationWithId.notification);
         }
         notifyReceivedToJS();
-        return id;
+        return notificationId;
     }
 
     @Override
@@ -90,10 +94,10 @@ public class PushNotification implements IPushNotification {
         return mNotificationProps.copy();
     }
 
-    protected int postNotification(Integer notificationId) {
+    protected int postPendingNotification() {
         final PendingIntent pendingIntent = getCTAPendingIntent();
-        final Notification notification = buildNotification(pendingIntent);
-        return postNotification(notification, notificationId);
+        final ConvoyNotificationBuilder.NotificationWithId notificationWithId = buildNotificationWithId(pendingIntent);
+        return postNotification(notificationWithId.id, notificationWithId.notification);
     }
 
     protected void digestNotification() {
@@ -144,7 +148,7 @@ public class PushNotification implements IPushNotification {
         return NotificationIntentAdapter.createPendingNotificationIntent(mContext, cta, mNotificationProps);
     }
 
-    protected Notification buildNotification(PendingIntent intent) {
+    protected ConvoyNotificationBuilder.NotificationWithId buildNotificationWithId(PendingIntent intent) {
         return new ConvoyNotificationBuilder(mContext, mNotificationProps, intent).buildNotification();
     }
 
@@ -180,15 +184,10 @@ public class PushNotification implements IPushNotification {
         return notification;
     }
 
-    protected int postNotification(Notification notification, Integer notificationId) {
-        int id = notificationId != null ? notificationId : createNotificationId(notification);
-        postNotification(id, notification);
-        return id;
-    }
-
-    protected void postNotification(int id, Notification notification) {
+    private int postNotification(int id, Notification notification) {
         final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(id, notification);
+        return id;
     }
 
     protected void clearAllNotifications() {
