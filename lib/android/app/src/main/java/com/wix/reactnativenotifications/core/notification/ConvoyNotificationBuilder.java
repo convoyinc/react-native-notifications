@@ -48,7 +48,7 @@ public class ConvoyNotificationBuilder {
         mIntent = intent;
     }
 
-    public NotificationWithId buildNotification() {
+    public NotificationWithId buildNotificationWithId() {
         Resources res = mContext.getResources();
         String packageName = mContext.getPackageName();
 
@@ -137,8 +137,9 @@ public class ConvoyNotificationBuilder {
         return new NotificationWithId(buildNotificationId(), notificationBuilder.build());
     }
 
-    private int buildNotificationId() {
-        Bundle collapse = mBundle.containsKey("collapse") ? mBundle.getBundle("collapse") : null;
+    public int buildNotificationId() {
+        Bundle pushData = mBundle.containsKey("pushData") ? mBundle.getBundle("pushData") : null;
+        Bundle collapse = pushData != null && pushData.containsKey("collapse") ? pushData.getBundle("collapse") : null;
         String pushId = collapse != null && collapse.containsKey("key") ? collapse.getString("key") : null;
         if (pushId == null) {
             String pushType = mBundle.containsKey("pushType") ? mBundle.getString("pushType") : "";
