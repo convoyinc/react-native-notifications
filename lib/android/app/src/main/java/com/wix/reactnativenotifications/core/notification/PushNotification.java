@@ -78,14 +78,14 @@ public class PushNotification implements IPushNotification {
         final ConvoyNotificationBuilder builder = new ConvoyNotificationBuilder(mContext, mNotificationProps, pendingIntent);
         if (!mAppLifecycleFacade.isAppVisible() && mNotificationProps.isVisible()) {
             final ConvoyNotificationBuilder.NotificationWithId notificationWithId = builder.buildNotificationWithId();
-            notificationId = notificationId != null ? notificationId : notificationWithId.id;
+            notificationId = notificationWithId.id;
             postNotification(notificationId, notificationWithId.notification);
         } else if (!mNotificationProps.isVisible()) {
             notificationId = builder.buildNotificationId();
             cancelNotification(notificationId);
         }
         notifyReceivedToJS();
-        return notificationId;
+        return notificationId != null ? notificationId : 0;
     }
 
     @Override
