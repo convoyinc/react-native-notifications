@@ -1,9 +1,11 @@
 #import <Foundation/Foundation.h>
 @import UserNotifications;
 
+typedef void (^SimpleBlock)();
+
 @interface RNNotificationsStore : NSObject
 
-@property (nonatomic, retain) NSDictionary* initialNotification;
+@property (nonatomic, assign) BOOL jsIsReady;
 
 + (instancetype)sharedInstance;
 
@@ -11,7 +13,9 @@
 - (void)completePresentation:(NSString *)completionKey withPresentationOptions:(UNNotificationPresentationOptions)presentationOptions;
 - (void)setActionCompletionHandler:(void (^)(void))completionHandler withCompletionKey:(NSString *)completionKey;
 - (void)setPresentationCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler withCompletionKey:(NSString *)completionKey;
+- (void)setInitialNotification:(NSDictionary *)initialNotification fetchCompletionHandler:(SimpleBlock)fetchCompletionHandler;
 
+- (NSDictionary *)getInitialNotification;
 - (void (^)(void))getActionCompletionHandler:(NSString *)key;
 - (void (^)(UNNotificationPresentationOptions))getPresentationCompletionHandler:(NSString *)key;
 

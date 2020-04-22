@@ -1,5 +1,12 @@
 #import "RNNotificationsStore.h"
 
+@interface RNNotificationsStore()
+
+@property (nonatomic, retain) NSDictionary* initialNotification;
+@property (nonatomic, copy) SimpleBlock initialNotificationFetchCompletionHandler;
+
+@end
+
 @implementation RNNotificationsStore
 NSMutableDictionary* _actionCompletionHandlers;
 NSMutableDictionary* _presentationCompletionHandlers;
@@ -27,6 +34,25 @@ NSMutableDictionary* _presentationCompletionHandlers;
 
 - (void)setPresentationCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler withCompletionKey:(NSString *)completionKey {
     _presentationCompletionHandlers[completionKey] = completionHandler;
+}
+
+- (void)setInitialNotification:(NSDictionary *)initialNotification fetchCompletionHandler:(SimpleBlock)fetchCompletionHandler {
+    self.initialNotification = initialNotification;
+    self.initialNotificationFetchCompletionHandler = fetchCompletionHandler;
+}
+
+- (NSDictionary *)getInitialNotification {
+    self.jsIsReady = YES;
+
+    if (self.initialNotification && self.initialNotificationFetchCompletionHandler) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.initialNotificationFetchCompletionHandler();
+        });
+    }
+
+    NSDictionary *initialNotification = self.initialNotification;
+    self.initialNotification = nil;
+    return initialNotification;
 }
 
 - (void (^)(void))getActionCompletionHandler:(NSString *)key {
