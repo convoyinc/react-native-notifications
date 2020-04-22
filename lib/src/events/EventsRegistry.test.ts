@@ -119,7 +119,7 @@ describe('EventsRegistry', () => {
 
     it('should invoke finishPresentingNotification', () => {
       const notification: Notification  = new Notification({identifier: 'notificationId'});
-      const response: NotificationCompletion  = {alert: true}
+      const response = 'none';
       
       uut.registerNotificationReceivedBackground((notification, completion) => {
         completion(response);
@@ -133,7 +133,7 @@ describe('EventsRegistry', () => {
     it('should not invoke finishPresentingNotification on Android', () => {
       Platform.OS = 'android';
       const expectedNotification: Notification  = new Notification({identifier: 'notificationId'});
-      const response: NotificationCompletion  = {alert: true}
+      const response = 'none';
       
       uut.registerNotificationReceivedBackground((notification, completion) => {
         completion(response);

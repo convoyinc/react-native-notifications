@@ -11,7 +11,7 @@ export declare class EventsRegistry {
     constructor(nativeEventsReceiver: NativeEventsReceiver, completionCallbackWrapper: CompletionCallbackWrapper);
     registerRemoteNotificationsRegistered(callback: (event: Registered) => void): EmitterSubscription;
     registerNotificationReceivedForeground(callback: (notification: Notification, completion: (response: NotificationCompletion) => void) => void): EmitterSubscription;
-    registerNotificationReceivedBackground(callback: (notification: Notification, completion: (response: NotificationCompletion) => void) => void): EmitterSubscription;
+    registerNotificationReceivedBackground(callback: (notification: Notification, completion: (response: string) => void) => void): EmitterSubscription;
     registerNotificationOpened(callback: (notification: Notification, completion: () => void, action?: NotificationActionResponse) => void): EmitterSubscription;
     registerRemoteNotificationsRegistrationFailed(callback: (event: RegistrationError) => void): EmitterSubscription;
 }
