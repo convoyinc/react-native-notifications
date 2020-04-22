@@ -42,7 +42,7 @@ NSMutableDictionary* _presentationCompletionHandlers;
 }
 
 - (NSDictionary *)getInitialNotification {
-    self.jsIsReady = YES;
+    self.hasInitialNotificationBeenFetched = YES;
 
     if (self.initialNotification && self.initialNotificationFetchCompletionHandler) {
         dispatch_async(dispatch_get_main_queue(), ^{

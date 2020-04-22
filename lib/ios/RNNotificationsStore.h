@@ -5,7 +5,7 @@ typedef void (^SimpleBlock)();
 
 @interface RNNotificationsStore : NSObject
 
-@property (nonatomic, assign) BOOL jsIsReady;
+@property (nonatomic, assign) BOOL hasInitialNotificationBeenFetched;
 
 + (instancetype)sharedInstance;
 
