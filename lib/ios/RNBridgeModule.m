@@ -26,7 +26,7 @@ RCT_EXPORT_MODULE();
 - (void)setBridge:(RCTBridge *)bridge {
     _bridge = bridge;
     if ([_bridge.launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey]) {
-        [[RNNotificationsStore sharedInstance] setInitialNotification:[_bridge.launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey] fetchCompletionHandler:nil];
+        [[RNNotificationsStore sharedInstance] setInitialNotification:[_bridge.launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey] withFetchCompletionHandler:nil];
     }
 }
 
@@ -50,6 +50,10 @@ RCT_EXPORT_METHOD(finishHandlingAction:(NSString *)completionKey) {
 
 RCT_EXPORT_METHOD(finishPresentingNotification:(NSString *)completionKey presentingOptions:(NSDictionary *)presentingOptions) {
     [_commandsHandler finishPresentingNotification:completionKey presentingOptions:presentingOptions];
+}
+
+RCT_EXPORT_METHOD(finishHandlingBackgroundAction:(NSString *)completionKey backgroundFetchResult:(NSString *)backgroundFetchResult) {
+    [_commandsHandler finishHandlingBackgroundAction:completionKey backgroundFetchResult:backgroundFetchResult];
 }
 
 RCT_EXPORT_METHOD(abandonPermissions) {

@@ -23,7 +23,7 @@ export class EventsRegistry {
     return this.nativeEventsReceiver.registerNotificationReceived(this.completionCallbackWrapper.wrapReceivedForegroundCallback(callback));
   }
 
-  public registerNotificationReceivedBackground(callback: (notification: Notification, completion: (response: NotificationCompletion) => void) => void): EmitterSubscription {
+  public registerNotificationReceivedBackground(callback: (notification: Notification, completion: (response: string) => void) => void): EmitterSubscription {
     return this.nativeEventsReceiver.registerNotificationReceived(this.completionCallbackWrapper.wrapReceivedBackgroundCallback(callback));
   }
   

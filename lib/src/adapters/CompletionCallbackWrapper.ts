@@ -13,7 +13,7 @@ export class CompletionCallbackWrapper {
   public wrapReceivedBackgroundCallback(callback: Function): (notification: Notification) => void {
     return (notification) => {
       if (!this.applicationIsVisible()) {
-        this.wrapReceivedAndInvoke(callback, notification);
+        this.wrapReceivedAndInvoke(callback, notification, true);
       }
     }
   }
@@ -21,15 +21,20 @@ export class CompletionCallbackWrapper {
   public wrapReceivedForegroundCallback(callback: Function): (notification: Notification) => void {
     return (notification) => {
       if (this.applicationIsVisible()) {
-        this.wrapReceivedAndInvoke(callback, notification);
+        this.wrapReceivedAndInvoke(callback, notification, false);
       }
     }
   }
 
-  private wrapReceivedAndInvoke(callback: Function, notification: Notification) {
-    const completion = (response: NotificationCompletion) => {
+  private wrapReceivedAndInvoke(callback: Function, notification: Notification, background: boolean) {
+    const completion = (response: NotificationCompletion | string) => {
       if (Platform.OS === 'ios') {
-        this.nativeCommandsSender.finishPresentingNotification((notification as unknown as NotificationIOS).identifier, response);
+        const identifier = (notification as unknown as NotificationIOS).identifier;
+        if (background) {
+          this.nativeCommandsSender.finishHandlingBackgroundAction(identifier, response as string);
+        } else {
+          this.nativeCommandsSender.finishPresentingNotification(identifier, response as NotificationCompletion);
+        }
       }
     };
 

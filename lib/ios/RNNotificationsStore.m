@@ -3,13 +3,13 @@
 @interface RNNotificationsStore()
 
 @property (nonatomic, retain) NSDictionary* initialNotification;
-@property (nonatomic, copy) SimpleBlock initialNotificationFetchCompletionHandler;
 
 @end
 
 @implementation RNNotificationsStore
 NSMutableDictionary* _actionCompletionHandlers;
 NSMutableDictionary* _presentationCompletionHandlers;
+NSMutableDictionary* _backgroundActionCompletionHandlers;
 
 + (instancetype)sharedInstance {
     static RNNotificationsStore *sharedInstance = nil;
@@ -25,6 +25,7 @@ NSMutableDictionary* _presentationCompletionHandlers;
     self = [super init];
     _actionCompletionHandlers = [NSMutableDictionary new];
     _presentationCompletionHandlers = [NSMutableDictionary new];
+    _backgroundActionCompletionHandlers = [NSMutableDictionary new];
     return self;
 }
 
@@ -36,23 +37,23 @@ NSMutableDictionary* _presentationCompletionHandlers;
     _presentationCompletionHandlers[completionKey] = completionHandler;
 }
 
-- (void)setInitialNotification:(NSDictionary *)initialNotification fetchCompletionHandler:(SimpleBlock)fetchCompletionHandler {
-    self.initialNotification = initialNotification;
-    self.initialNotificationFetchCompletionHandler = fetchCompletionHandler;
+- (void)setBackgroundActionCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler withCompletionKey:(NSString *)completionKey {
+    _backgroundActionCompletionHandlers[completionKey] = completionHandler;
+}
+
+- (void)setInitialNotification:(NSDictionary *)initialNotification  withFetchCompletionHandler:(void (^)(UIBackgroundFetchResult))fetchCompletionHandler {
+    NSMutableDictionary *notificaiton = [initialNotification mutableCopy];
+    if (fetchCompletionHandler) {
+        NSString *uuid = [[NSUUID UUID] UUIDString];
+        [self setBackgroundActionCompletionHandler:fetchCompletionHandler withCompletionKey:uuid];
+        [notificaiton setObject:uuid forKey:@"identifier"];
+    }
+    self.initialNotification = notificaiton;
 }
 
 - (NSDictionary *)getInitialNotification {
     self.hasInitialNotificationBeenFetched = YES;
-
-    if (self.initialNotification && self.initialNotificationFetchCompletionHandler) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.initialNotificationFetchCompletionHandler();
-        });
-    }
-
-    NSDictionary *initialNotification = self.initialNotification;
-    self.initialNotification = nil;
-    return initialNotification;
+    return self.initialNotification;
 }
 
 - (void (^)(void))getActionCompletionHandler:(NSString *)key {
@@ -76,6 +77,14 @@ NSMutableDictionary* _presentationCompletionHandlers;
     if (completionHandler) {
         completionHandler(presentationOptions);
         [_presentationCompletionHandlers removeObjectForKey:completionKey];
+    }
+}
+
+- (void)completeBackgroundAction:(NSString *)completionKey withBackgroundFetchResult:(UIBackgroundFetchResult)backgroundFetchResult {
+    void (^completionHandler)() = (void (^)(UIBackgroundFetchResult))[_backgroundActionCompletionHandlers valueForKey:completionKey];
+    if (completionHandler) {
+        completionHandler(backgroundFetchResult);
+        [_backgroundActionCompletionHandlers removeObjectForKey:completionKey];
     }
 }
 
