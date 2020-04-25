@@ -3,8 +3,6 @@
 
 @interface RNNotificationsStore : NSObject
 
-@property (nonatomic, assign) BOOL hasInitialNotificationBeenFetched;
-
 + (instancetype)sharedInstance;
 
 - (void)completeAction:(NSString *)completionKey;

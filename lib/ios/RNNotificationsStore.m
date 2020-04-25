@@ -52,7 +52,6 @@ NSMutableDictionary* _backgroundActionCompletionHandlers;
 }
 
 - (NSDictionary *)getInitialNotification {
-    self.hasInitialNotificationBeenFetched = YES;
     return self.initialNotification;
 }
 
