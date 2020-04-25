@@ -8,5 +8,4 @@ export declare class CompletionCallbackWrapper {
     wrapReceivedForegroundCallback(callback: Function): (notification: Notification) => void;
     private wrapReceivedAndInvoke;
     wrapOpenedCallback(callback: Function): (notification: Notification, action?: NotificationActionResponse) => void;
-    private applicationIsVisible;
 }
