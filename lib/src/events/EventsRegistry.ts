@@ -6,7 +6,7 @@ import {
 } from '../interfaces/NotificationEvents';
 import { CompletionCallbackWrapper } from '../adapters/CompletionCallbackWrapper';
 import { Notification } from '../DTO/Notification';
-import { NotificationCompletion } from '../interfaces/NotificationCompletion';
+import { NotificationCompletion, NotificationBackgroundFetchResult } from '../interfaces/NotificationCompletion';
 import { NotificationActionResponse } from '../interfaces/NotificationActionResponse';
 
 export class EventsRegistry {
@@ -23,8 +23,8 @@ export class EventsRegistry {
     return this.nativeEventsReceiver.registerNotificationReceived(this.completionCallbackWrapper.wrapReceivedForegroundCallback(callback));
   }
 
-  public registerNotificationReceivedBackground(callback: (notification: Notification, completion: (response: NotificationCompletion) => void) => void): EmitterSubscription {
-    return this.nativeEventsReceiver.registerNotificationReceived(this.completionCallbackWrapper.wrapReceivedBackgroundCallback(callback));
+  public registerNotificationReceivedBackground(callback: (notification: Notification, completion: (response: NotificationBackgroundFetchResult) => void) => void): EmitterSubscription {
+    return this.nativeEventsReceiver.registerNotificationReceivedBackground(this.completionCallbackWrapper.wrapReceivedBackgroundCallback(callback));
   }
   
   public registerNotificationOpened(callback: (notification: Notification, completion: () => void, action?: NotificationActionResponse) => void): EmitterSubscription {

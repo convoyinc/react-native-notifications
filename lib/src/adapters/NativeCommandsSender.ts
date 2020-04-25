@@ -23,6 +23,7 @@ interface NativeCommandsModule {
   setCategories(categories: [NotificationCategory?]): void;
   finishPresentingNotification(notificationId: string, callback: NotificationCompletion): void;
   finishHandlingAction(notificationId: string): void;
+  finishHandlingBackgroundAction(notificationId: string, backgroundFetchResult: string): void;
 }
 
 export class NativeCommandsSender {
@@ -101,5 +102,9 @@ export class NativeCommandsSender {
 
   finishHandlingAction(notificationId: string): void {
     this.nativeCommandsModule.finishHandlingAction(notificationId);
+  }
+
+  finishHandlingBackgroundAction(notificationId: string, backgroundFetchResult: string): void {
+    this.nativeCommandsModule.finishHandlingBackgroundAction(notificationId, backgroundFetchResult);
   }
 }
