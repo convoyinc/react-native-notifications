@@ -33,8 +33,10 @@
     [RNEventEmitter sendEvent:RNNotificationOpened body:[RNNotificationParser parseNotificationResponse:response]];
 }
 
-- (void)didReceiveSilentNotification:(NSDictionary *)userInfo {
-    [RNEventEmitter sendEvent:RNNotificationReceived body:[RNNotificationParser parseNotificationUserInfo:userInfo]];
+- (void)didReceiveBackgroundNotification:(NSDictionary *)userInfo withCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSString *uuid = [[NSUUID UUID] UUIDString];
+    [_store setBackgroundActionCompletionHandler:completionHandler withCompletionKey:uuid];
+    [RNEventEmitter sendEvent:RNNotificationReceivedBackground body:[RNNotificationParser parseNotificationUserInfo:userInfo withIdentifier:uuid]];
 }
 
 @end

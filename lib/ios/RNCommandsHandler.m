@@ -22,7 +22,7 @@
 }
 
 - (void)getInitialNotification:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-    resolve([[RNNotificationsStore sharedInstance] initialNotification]);
+    resolve([[RNNotificationsStore sharedInstance] getInitialNotification]);
 }
 
 - (void)finishHandlingAction:(NSString *)completionKey {
@@ -31,6 +31,10 @@
 
 - (void)finishPresentingNotification:(NSString *)completionKey presentingOptions:(NSDictionary *)presentingOptions {
     [[RNNotificationsStore sharedInstance] completePresentation:completionKey withPresentationOptions:[RCTConvert UNNotificationPresentationOptions:presentingOptions]];
+}
+
+- (void)finishHandlingBackgroundAction:(NSString *)completionKey backgroundFetchResult:(NSString *)backgroundFetchResult {
+    [[RNNotificationsStore sharedInstance] completeBackgroundAction:completionKey withBackgroundFetchResult:[RCTConvert UIBackgroundFetchResult:backgroundFetchResult]];
 }
 
 - (void)abandonPermissions {

@@ -23,4 +23,5 @@ export declare class NativeCommandsSender {
     getDeliveredNotifications(): Promise<Notification[]>;
     finishPresentingNotification(notificationId: string, notificationCompletion: NotificationCompletion): void;
     finishHandlingAction(notificationId: string): void;
+    finishHandlingBackgroundAction(notificationId: string, backgroundFetchResult: string): void;
 }
