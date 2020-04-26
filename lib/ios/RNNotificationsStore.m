@@ -1,11 +1,5 @@
 #import "RNNotificationsStore.h"
 
-@interface RNNotificationsStore()
-
-@property (nonatomic, retain) NSDictionary* initialNotification;
-
-@end
-
 @implementation RNNotificationsStore
 NSMutableDictionary* _actionCompletionHandlers;
 NSMutableDictionary* _presentationCompletionHandlers;
