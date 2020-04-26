@@ -26,7 +26,7 @@ RCT_EXPORT_MODULE();
 - (void)setBridge:(RCTBridge *)bridge {
     _bridge = bridge;
     if ([_bridge.launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey]) {
-        [[RNNotificationsStore sharedInstance] setInitialNotification:[_bridge.launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey] withFetchCompletionHandler:nil];
+        [[RNNotificationsStore sharedInstance] setInitialNotification:[_bridge.launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey]];
     }
 }
 
