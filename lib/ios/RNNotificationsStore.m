@@ -41,20 +41,6 @@ NSMutableDictionary* _backgroundActionCompletionHandlers;
     _backgroundActionCompletionHandlers[completionKey] = completionHandler;
 }
 
-- (void)setInitialNotification:(NSDictionary *)initialNotification  withFetchCompletionHandler:(void (^)(UIBackgroundFetchResult))fetchCompletionHandler {
-    NSMutableDictionary *notificaiton = [initialNotification mutableCopy];
-    if (fetchCompletionHandler) {
-        NSString *uuid = [[NSUUID UUID] UUIDString];
-        [self setBackgroundActionCompletionHandler:fetchCompletionHandler withCompletionKey:uuid];
-        [notificaiton setObject:uuid forKey:@"identifier"];
-    }
-    self.initialNotification = notificaiton;
-}
-
-- (NSDictionary *)getInitialNotification {
-    return self.initialNotification;
-}
-
 - (void (^)(void))getActionCompletionHandler:(NSString *)key {
     return _actionCompletionHandlers[key];
 }
